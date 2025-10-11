@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16.0-alpine
+    container_name: fastapi_template
+    shm_size: 256m
+    environment:
+      POSTGRES_USER: ${DB_USER:-fastapi_template}
+      POSTGRES_DB: ${DB_NAME:-fastapi_template}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fastapi_template}
+    ports:
+      - ${DB_PORT:-5432}:5432
+    volumes:
+      - fastapi_user_service_postgres_data:/var/lib/postgresql/data
+volumes:
+  fastapi_user_service_postgres_data:
