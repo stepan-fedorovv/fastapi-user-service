@@ -58,13 +58,17 @@ class APPSettings(BaseSettings):
     MIN_CONNECTIONS_COUNT: int = config("MIN_CONNECTIONS_COUNT", cast=int, default=1)
     MAX_CONNECTIONS_COUNT: int = config("MAX_CONNECTIONS_COUNT", cast=int, default=10)
 
-    @cached_property
-    def get_database_url(self) -> str:
+
+    def get_database_url(self, with_asyncpg = True) -> str:
+        driver = 'postgresql+asyncpg://'
+        if not with_asyncpg:
+            driver = 'postgresql://'
         return (
-            f"postgresql+asyncpg://"
+            f"{driver}"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+
 
 
 @lru_cache()
