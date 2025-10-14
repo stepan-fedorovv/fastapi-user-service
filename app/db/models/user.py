@@ -1,18 +1,21 @@
 from datetime import datetime
+from typing import List, Optional
 
-from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy import String, ForeignKey, UniqueConstraint, func
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.models import Base, TimestampMixin
 
 
 class UserGroupPermission(Base):
-    __tablename__ = 'user_group_permission'
+    __tablename__ = "user_group_permission"
+
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
     code_name: Mapped[str] = mapped_column(unique=True, nullable=False)
-    group_links: Mapped[list["UserGroupPermissionAssociation"]] = relationship(
+
+    group_links: Mapped[List["UserGroupPermissionAssociation"]] = relationship(
         back_populates="permission",
         cascade="all, delete-orphan",
         lazy="selectin",
@@ -21,29 +24,21 @@ class UserGroupPermission(Base):
 
 class UserGroupPermissionAssociation(Base):
     __tablename__ = "user_group_permission_link"
-    __table_args__ = (
-        UniqueConstraint("group_id", "permission_id", name="uq_group_perm"),
-    )
-    id: Mapped[int] = mapped_column(
-        primary_key=True,
-        autoincrement=True
-    )
+    __table_args__ = (UniqueConstraint("group_id", "permission_id", name="uq_group_perm"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
     group_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            "user_groups.id",
-            ondelete="CASCADE"
-        ),
+        ForeignKey("user_groups.id", ondelete="CASCADE"),
         index=True,
-        nullable=False
+        nullable=False,
     )
     permission_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            "user_group_permission.id",
-            ondelete="CASCADE"
-        ),
+        ForeignKey("user_group_permission.id", ondelete="CASCADE"),
         index=True,
-        nullable=False
+        nullable=False,
     )
+
     group: Mapped["UserGroup"] = relationship(
         back_populates="permission_links",
         lazy="joined",
@@ -52,52 +47,53 @@ class UserGroupPermissionAssociation(Base):
         back_populates="group_links",
         lazy="joined",
     )
-    granted_at: Mapped[datetime] = mapped_column(
-        default=datetime.now(),
-        nullable=False
-    )
-    granted_by: Mapped[str | None] = mapped_column(
-        String(100)
-    )
+
+    granted_at: Mapped[datetime] = mapped_column(server_default=func.now(), nullable=False)
+    granted_by: Mapped[Optional[str]] = mapped_column(String(100))
 
 
 class UserGroup(Base):
     __tablename__ = "user_groups"
-    __table_args__ = (
-        {"comment": "Группы пользователей"},
-    )
+    __table_args__ = ({"comment": "Группы пользователей"},)
+
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
-    permission_links: Mapped[list["UserGroupPermissionAssociation"]] = relationship(
+
+    permission_links: Mapped[List["UserGroupPermissionAssociation"]] = relationship(
         back_populates="group",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
     permissions = association_proxy(
         target_collection="permission_links",
-        attr="permission"
+        attr="permission",
+    )
+
+    users: Mapped[List["User"]] = relationship(
+        back_populates="group",
+        lazy="selectin",
+        cascade="save-update",
     )
 
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"
     __table_args__ = (
-        {"comment": "Пользователи системы"},
+        UniqueConstraint("email"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    first_name: Mapped[str | None] = mapped_column(String(100), index=True)
-    surname: Mapped[str | None] = mapped_column(String(100), index=True)
-    middle_name: Mapped[str | None] = mapped_column(String(100), index=True)
+    first_name: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    surname: Mapped[Optional[str]] = mapped_column(String(100), index=True)
+    middle_name: Mapped[Optional[str]] = mapped_column(String(100), index=True)
 
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
 
-    group_id: Mapped[int | None] = mapped_column(
+    group_id: Mapped[int] = mapped_column(
         ForeignKey("user_groups.id", ondelete="SET NULL"),
-        nullable=True,
         index=True,
     )
     group: Mapped["UserGroup"] = relationship(

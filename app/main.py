@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api.errors.error_handlers import install_exception_handlers
 from app.api.router import grouping_router
 from app.core import config
 from app.db.setup import dispose_engine
@@ -9,9 +10,7 @@ from app.db.setup import dispose_engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup: можно прогреть коннекты/кэш
     yield
-    # shutdown: корректно закрываем пул коннектов
     await dispose_engine()
 
 
@@ -25,7 +24,7 @@ def get_application() -> FastAPI:
         redirect_slashes=True,
         lifespan=lifespan
     )
-
+    install_exception_handlers(application)
     application.include_router(grouping_router)
 
     return application
