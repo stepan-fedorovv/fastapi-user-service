@@ -9,7 +9,7 @@ class UserCreateSchema(BaseDto):
     password: str
     group_id: int
 
-class UserResponseSchema(BaseDto):
+class UserBaseSchema(BaseDto):
     id: int
     email: str
     first_name: str | None
@@ -17,3 +17,8 @@ class UserResponseSchema(BaseDto):
     middle_name: str | None
     is_active: bool
     group: GroupResponseSchema
+
+
+class AuthResponseSchema(BaseDto):
+    access_token: str
+    refresh_token: str

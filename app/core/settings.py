@@ -13,6 +13,7 @@ class APPSettings(BaseSettings):
         env_file='.env',
         extra="ignore",
     )
+    APP_SECRET: str = config("APP_SECRET", cast=str, default="secret")
     PROJECT_NAME: str = config("PROJECT_NAME", cast=str, default="UserService")
     VERSION: str = config("VERSION", cast=str, default="1.0.0")
 
