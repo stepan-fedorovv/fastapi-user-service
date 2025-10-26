@@ -5,7 +5,8 @@ import os, sys
 from app.core import config as project_config
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.db.models import Base  # <-- твой Base с уже импортированными моделями!
+from app.infrastructure.db import Base
+from app.infrastructure.db import models
 
 config = context.config
 if config.config_file_name is not None:

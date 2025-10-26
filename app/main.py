@@ -1,18 +1,23 @@
 from contextlib import asynccontextmanager
 
+from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 
-from app.api.errors.error_handlers import install_exception_handlers
-from app.api.router import grouping_router
-from app.common.jwt.jwt import load_jwt_config
 from app.core import config
-from app.db.setup import dispose_engine
+from app.infrastructure.db.setup import engine
+from app.infrastructure.di import build_container
+from app.interface.error_handlers.grouping_erros import grouping_install_exception_handlers
+from app.interface.router import grouping_router
+from app.shared.jwt.jwt import load_jwt_config
 
+container = build_container()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    await dispose_engine()
+    await engine.dispose()
+    await container.close()
 
 
 def get_application() -> FastAPI:
@@ -26,9 +31,10 @@ def get_application() -> FastAPI:
         lifespan=lifespan
     )
     load_jwt_config()
-    install_exception_handlers(application)
+    grouping_install_exception_handlers(application)
     application.include_router(grouping_router)
-
+    add_pagination(application)
+    setup_dishka(container, application)
     return application
 
 
