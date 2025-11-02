@@ -11,6 +11,7 @@ from app.interface.schemas.group import GroupBaseSchema, GroupCreateSchema, Grou
 
 router = APIRouter()
 
+#TODO: Add retrieve method, partial_update and remove_group method
 
 @router.get(
     path="/",

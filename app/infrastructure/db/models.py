@@ -77,5 +77,5 @@ class User(Base, TimestampMixin):
     )
     group: Mapped["Group"] = relationship(
         back_populates="users",
-        lazy="joined",
+        lazy="selectin",
     )

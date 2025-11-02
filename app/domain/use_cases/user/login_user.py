@@ -44,3 +44,4 @@ class LoginUserUseCase:
                         "code": ErrorCode.INVALID_PASSWORD
                     }
                 )
+        return user

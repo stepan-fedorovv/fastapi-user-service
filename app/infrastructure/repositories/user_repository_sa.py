@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import select, exists, Select
+from sqlalchemy import select, exists, Select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.db.models import User
@@ -9,7 +9,7 @@ from app.domain.repositories.user_repository import UserRepository
 
 class SAUserRepository(UserRepository):
     def __init__(self, session: AsyncSession) -> None:
-            self.session = session
+        self.session = session
 
     async def get_all(self) -> typing.Sequence[User]:
         stmt = select(User).order_by(User.id)
@@ -36,3 +36,19 @@ class SAUserRepository(UserRepository):
         stmt = select(User).where(User.email == email).limit(1)
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def find_by_id(self, *, user_id: int) -> User | None:
+        stmt = select(User).where(User.id == user_id)
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
+    async def update_user(self, *, user_id: int, payload: dict[str, typing.Any]) -> User | None:
+        stmt = (
+            update(User)
+            .where(User.id == user_id)
+            .values(**payload)
+            .returning(User)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().one_or_none()
+

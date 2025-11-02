@@ -10,6 +10,8 @@ from app.domain.contracts.permission_contracts import IPermissionService
 from app.interface.schemas.permission import PermissionBaseSchema, PermissionCreateSchema
 router = APIRouter()
 
+#TODO: Add partial_update,retrieve,delete and remove_permission methods
+
 @router.get(
     path='/',
     status_code=status.HTTP_200_OK,

@@ -1,3 +1,4 @@
+import pydantic
 from pydantic import EmailStr
 
 from app.interface.schemas.group import GroupBaseSchema
@@ -28,3 +29,10 @@ class LoginRequestSchema(BaseDto):
 class AuthResponseSchema(BaseDto):
     access_token: str
     refresh_token: str
+
+
+class UserUpdateSchema(BaseDto):
+    first_name: str | None = None
+    surname: str | None = None
+    middle_name: str | None = None
+    is_active: bool = pydantic.Field(default=True)

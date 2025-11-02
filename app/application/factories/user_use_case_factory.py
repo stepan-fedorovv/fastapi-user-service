@@ -1,9 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.use_cases.user.create_user import CreateUserUseCase
-from app.domain.use_cases.user.get_user import GetUserUseCase
+from app.domain.use_cases.user.get_user_by_email import GetUserByEmailUseCase
+from app.domain.use_cases.user.get_user_by_id import GetUserByIdUseCase
 from app.domain.use_cases.user.get_user_list import GetUserListUseCase
 from app.domain.use_cases.user.login_user import LoginUserUseCase
+from app.domain.use_cases.user.partial_update_user import PartialUpdateUserUseCase
 from app.infrastructure.repositories.user_repository_sa import SAUserRepository
 from app.infrastructure.transactions.sqlalchemy_tm import SATransactionManager
 from app.shared.utils import hash_password, verify_password
@@ -23,8 +25,15 @@ class UserUseCaseFactory:
         )
 
     @property
-    def get_user(self) -> GetUserUseCase:
-        return GetUserUseCase(
+    def get_user_by_email(self) -> GetUserByEmailUseCase:
+        return GetUserByEmailUseCase(
+            repository=self._repository,
+            transaction_manager=self._tm,
+        )
+
+    @property
+    def get_user_by_id(self) -> GetUserByIdUseCase:
+        return GetUserByIdUseCase(
             repository=self._repository,
             transaction_manager=self._tm,
         )
@@ -40,6 +49,13 @@ class UserUseCaseFactory:
     @property
     def get_user_list(self):
         return GetUserListUseCase(
+            repository=self._repository,
+            transaction_manager=self._tm,
+        )
+
+    @property
+    def partial_update_user(self):
+        return PartialUpdateUserUseCase(
             repository=self._repository,
             transaction_manager=self._tm,
         )

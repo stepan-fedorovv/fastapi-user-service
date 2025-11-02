@@ -9,10 +9,10 @@ from fastapi_pagination.async_paginator import apaginate
 from starlette import status
 
 from app.domain.contracts.user_contracts import IUserService
-from app.interface.schemas.user import UserBaseSchema, AuthResponseSchema, UserCreateSchema, LoginRequestSchema
+from app.interface.schemas.user import UserBaseSchema, AuthResponseSchema, UserCreateSchema, LoginRequestSchema, \
+    UserUpdateSchema
 
 router = APIRouter()
-
 
 @router.post(
     path='/',
@@ -26,20 +26,20 @@ async def create(
         authorize: AuthJWT = Depends(),
         service: FromDishka[IUserService] = None,
 ):
+    user = await service.create(
+        email=payload.email,
+        password=payload.password,
+        group_id=payload.group_id,
+    )
     access_token = authorize.create_access_token(subject=payload.email)
     refresh_token = authorize.create_refresh_token(
         subject=payload.email,
         expires_time=timedelta(hours=2)
     )
-    await service.create(
-        email=payload.email,
-        password=payload.password,
-        group_id=payload.group_id,
-    )
     return AuthResponseSchema(
         access_token=access_token,
         refresh_token=refresh_token,
-    ).model_dump()
+    )
 
 
 @router.post(
@@ -97,6 +97,25 @@ async def users_list(
     return await apaginate(sequence=users, params=params)
 
 
+@router.patch(
+    path='/{user_id}/',
+    response_model=UserBaseSchema,
+    status_code=status.HTTP_200_OK,
+    summary='Update user',
+)
+@inject
+async def partial_update(
+        user_id: int,
+        payload: UserUpdateSchema,
+        authorize: AuthJWT = Depends(),
+        service: FromDishka[IUserService] = None,
+):
+    authorize.jwt_required()
+    return await service.partial_update(
+        user_id=user_id,
+        payload=payload.model_dump(exclude_unset=True),
+    )
+
 
 @router.post(
     path='/refresh/',
@@ -115,3 +134,19 @@ def refresh(authorize: AuthJWT = Depends()):
     )
 
 
+@router.get(
+    path='/{user_id}/',
+    response_model=UserBaseSchema,
+    status_code=status.HTTP_200_OK,
+    summary='Get concrete user info',
+)
+@inject
+async def retrieve(
+        user_id: int,
+        authorize: AuthJWT = Depends(),
+        service: FromDishka[IUserService] = None,
+):
+    authorize.jwt_required()
+    return await service.retrieve(
+        user_id=user_id,
+    )
