@@ -14,7 +14,7 @@ class CreateGroupUseCase:
 
     async def execute(self, *, name: str) -> Group:
         async with self.tm.start():
-            if await self.repository.exists_by_name(name=name):
+            if await self.repository.find_by_name(name=name):
                 raise GroupAlreadyExists(
                     detail="Group with name {} already exists".format(name),
                     errors={

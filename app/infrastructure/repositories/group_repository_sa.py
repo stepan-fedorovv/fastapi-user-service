@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import exists, select
+from sqlalchemy import exists, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import set_committed_value
@@ -17,17 +17,17 @@ class SAGroupRepository(GroupRepository):
         groups = await self.session.execute(stmt)
         return groups.scalars().all()
 
-    async def exists_by_name(self, *, name: str) -> bool:
-        stmt = select(exists().where(Group.name == name))
+    async def find_by_name(self, *, name: str) -> Group:
+        stmt = select(Group).where(Group.name == name)
         result = await self.session.execute(stmt)
-        return bool(result.scalar())
+        return result.scalars().first()
 
     async def find_by_id(self, *, group_id: int) -> Group:
         stmt = select(Group).where(Group.id == group_id).limit(1)
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def create(self, *, name: str) -> Group:
+    async def create(self, name: str) -> Group:
         group = Group(
             name=name,
         )
@@ -36,15 +36,17 @@ class SAGroupRepository(GroupRepository):
         set_committed_value(group, "permissions", [])
         return group
 
-    async def set_permission(self, *, group: Group, permission: Permission) -> None:
-        stmt = (
-            pg_insert(group_permission_link)
-            .values(group_id=group.id, permission_id=permission.id)
-            .on_conflict_do_nothing(
-                index_elements=(group_permission_link.c.group_id, group_permission_link.c.permission_id)
-            )
-        )
-        await self.session.execute(stmt)
-        await self.session.refresh(group)
+    async def set_permissions(self, *, group: Group, permissions: list[Permission]) -> None:
+        group.permissions = permissions
+        await self.session.flush()
         return group
 
+    async def patrial_update(self, group_id: int, data: dict[str, typing.Any]) -> Group:
+        stmt = (
+            update(Group)
+            .where(Group.id == group_id)
+            .values(**data)
+            .returning(Group)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().one_or_none()

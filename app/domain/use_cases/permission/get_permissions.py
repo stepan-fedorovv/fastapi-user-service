@@ -4,23 +4,24 @@ from app.domain.repositories.permission_repository import PermissionRepository
 from app.shared.errors.enums import ErrorCode
 
 
-class GetPermissionUseCase:
+class GetPermissionsUseCase:
     def __init__(self, repository: PermissionRepository, transaction_manager: TransactionManager) -> None:
         self.repository = repository
         self.tm = transaction_manager
 
-    async def execute(self, code_name: str):
+    async def execute(self, code_names: list[str]):
         async with self.tm.start():
-            permission = await self.repository.find_by_code_name(
-                code_name=code_name
+            permissions = await self.repository.find_by_code_names(
+                code_names=code_names
             )
-            if not permission:
+            absence_permissions = set(code_names) - set(permission.code_name for permission in permissions)
+            if absence_permissions:
                 raise PermissionNotFound(
-                    detail="Permission with code_name {} not found".format(code_name),
+                    detail="Permission with code_names {} not found".format(','.join(absence_permissions)),
                     errors={
                         "field": "code_name",
                         "message": "Not found",
                         "code": ErrorCode.PERMISSION_NOT_FOUND
                     }
                 )
-        return permission
+        return permissions

@@ -3,9 +3,6 @@ import typing
 from app.application.factories.user_use_case_factory import UserUseCaseFactory
 from app.domain.contracts.user_contracts import IUserService
 
-
-# TODO: Добавить возвращаемые значения
-
 class UserService(IUserService):
     def __init__(
             self,

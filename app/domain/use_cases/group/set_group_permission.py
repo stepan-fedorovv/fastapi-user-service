@@ -5,12 +5,12 @@ from app.domain.ports.transaction import TransactionManager
 from app.domain.repositories.group_repository import GroupRepository
 
 
-class SetGroupPermissionUseCase:
+class SetGroupPermissionsUseCase:
     def __init__(self,transaction_manager: TransactionManager ,repository: GroupRepository):
         self.repository = repository
         self.tm = transaction_manager
 
-    async def execute(self, group: Group, permission: Permission):
+    async def execute(self, group: Group, permissions: list[Permission]):
         async with self.tm.start():
-            group = await self.repository.set_permission(group=group, permission=permission)
+            group = await self.repository.set_permissions(group=group, permissions=permissions)
         return group

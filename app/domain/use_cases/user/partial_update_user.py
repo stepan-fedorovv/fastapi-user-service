@@ -14,7 +14,7 @@ class PartialUpdateUserUseCase:
 
     async def execute(self, *, user_id: int, payload: dict[str, typing.Any]) -> User:
         async with self.tm.start():
-            user = await self.repository.update_user(user_id=user_id, payload=payload)
+            user = await self.repository.partial_update(user_id=user_id, data=payload)
             if not user:
                 raise UserDoesNotExists(
                     detail="User with {} does not exist".format(user_id),

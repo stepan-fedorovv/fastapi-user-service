@@ -42,11 +42,11 @@ class SAUserRepository(UserRepository):
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def update_user(self, *, user_id: int, payload: dict[str, typing.Any]) -> User | None:
+    async def partial_update(self, *, user_id: int, data: dict[str, typing.Any]) -> User | None:
         stmt = (
             update(User)
             .where(User.id == user_id)
-            .values(**payload)
+            .values(**data)
             .returning(User)
         )
         result = await self.session.execute(stmt)

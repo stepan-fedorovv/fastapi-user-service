@@ -4,6 +4,7 @@ from abc import abstractmethod, ABC
 from sqlalchemy import Select
 
 from app.domain.entities.group import Group
+from app.domain.entities.permission import Permission
 
 
 class GroupRepository(ABC):
@@ -12,7 +13,7 @@ class GroupRepository(ABC):
         ...
 
     @abstractmethod
-    async def exists_by_name(self, *, name: str) -> bool:
+    async def find_by_name(self, *, name: str) -> Group:
         ...
 
     @abstractmethod
@@ -24,5 +25,9 @@ class GroupRepository(ABC):
         ...
 
     @abstractmethod
-    async def set_permission(self, *, group: int, permission: str) -> None:
+    async def set_permissions(self, *, group: int, permissions: list[Permission]) -> None:
+        ...
+
+    @abstractmethod
+    async def patrial_update(self, *, group_id: int, data: dict[str, typing.Any]) -> Group:
         ...

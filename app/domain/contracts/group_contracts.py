@@ -1,6 +1,7 @@
 import typing
 from typing import Protocol
 
+from app.application.dto.group import GroupDto
 from app.domain.entities.group import Group
 from app.domain.entities.permission import Permission
 
@@ -16,7 +17,8 @@ class IGroupService(Protocol):
     async def groups_list(self) -> typing.Sequence[Group]:
         ...
 
-    async def set_permissions(self, *, group_id: int, code_name: str) -> Group:
+    async def retrieve(self, *, group_id: int) -> Group:
         ...
 
-
+    async def partial_update(self, *, data: GroupDto) -> Group:
+        ...

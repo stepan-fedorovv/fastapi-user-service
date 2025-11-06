@@ -14,6 +14,7 @@ from app.interface.schemas.user import UserBaseSchema, AuthResponseSchema, UserC
 
 router = APIRouter()
 
+
 @router.post(
     path='/',
     response_model=AuthResponseSchema,
@@ -64,6 +65,7 @@ async def login(
         refresh_token=refresh_token,
     )
 
+
 @router.get(
     path='/me/',
     response_model=UserBaseSchema,
@@ -79,6 +81,7 @@ async def me(
     return await service.me(
         email=authorize.get_jwt_subject()
     )
+
 
 @router.get(
     path='/',

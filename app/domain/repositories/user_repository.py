@@ -23,7 +23,7 @@ class UserRepository(ABC):
         ...
 
     @abstractmethod
-    async def update_user(self, user_id: int, payload: dict[str, typing.Any]) -> User:
+    async def partial_update(self, user_id: int, data: dict[str, typing.Any]) -> User:
         ...
 
     @abstractmethod

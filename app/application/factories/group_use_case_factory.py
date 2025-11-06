@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.use_cases.group.create_group import CreateGroupUseCase
 from app.domain.use_cases.group.get_group import GetGroupUseCase
 from app.domain.use_cases.group.get_group_list import GetGroupListUseCase
-from app.domain.use_cases.group.set_group_permission import SetGroupPermissionUseCase
+from app.domain.use_cases.group.partial_update_group import PartialUpdateGroupUseCase
+from app.domain.use_cases.group.set_group_permission import SetGroupPermissionsUseCase
 from app.infrastructure.repositories.group_repository_sa import SAGroupRepository
 from app.infrastructure.transactions.sqlalchemy_tm import SATransactionManager
 
@@ -35,8 +36,15 @@ class GroupUseCaseFactory:
         )
 
     @property
-    def set_permission(self):
-        return SetGroupPermissionUseCase(
+    def set_permissions(self):
+        return SetGroupPermissionsUseCase(
+            repository=self._repository,
+            transaction_manager=self._tm
+        )
+
+    @property
+    def partial_update_group(self):
+        return PartialUpdateGroupUseCase(
             repository=self._repository,
             transaction_manager=self._tm
         )
