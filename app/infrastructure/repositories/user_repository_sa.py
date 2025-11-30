@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import select, exists, Select, update
+from sqlalchemy import select, exists, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.db.models import User
@@ -42,13 +42,9 @@ class SAUserRepository(UserRepository):
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def partial_update(self, *, user_id: int, data: dict[str, typing.Any]) -> User | None:
-        stmt = (
-            update(User)
-            .where(User.id == user_id)
-            .values(**data)
-            .returning(User)
-        )
+    async def partial_update(
+        self, *, user_id: int, data: dict[str, typing.Any]
+    ) -> User | None:
+        stmt = update(User).where(User.id == user_id).values(**data).returning(User)
         result = await self.session.execute(stmt)
         return result.scalars().one_or_none()
-

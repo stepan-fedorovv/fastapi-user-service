@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import select, exists, Select, delete, update
+from sqlalchemy import select, exists, delete, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,9 @@ class SAPermissionRepository(PermissionRepository):
         stmt = (
             pg_insert(Permission)
             .values(code_name=code_name, name=name)
-            .on_conflict_do_nothing(index_elements=[Permission.code_name, Permission.name])
+            .on_conflict_do_nothing(
+                index_elements=[Permission.code_name, Permission.name]
+            )
             .returning(Permission.id)
         )
         result = await self.session.execute(stmt)
@@ -48,7 +50,9 @@ class SAPermissionRepository(PermissionRepository):
         stmt = delete(Permission).where(Permission.id == permission_id)
         await self.session.execute(stmt)
 
-    async def partial_update(self, *, permission_id: int, data: dict[str, typing.Any]) -> Permission | None:
+    async def partial_update(
+        self, *, permission_id: int, data: dict[str, typing.Any]
+    ) -> Permission | None:
         stmt = (
             update(Permission)
             .where(Permission.id == permission_id)

@@ -2,7 +2,9 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.factories.group_use_case_factory import GroupUseCaseFactory
-from app.application.factories.permission_use_case_factory import PermissionUseCaseFactory
+from app.application.factories.permission_use_case_factory import (
+    PermissionUseCaseFactory,
+)
 from app.application.services.group_service import GroupService
 from app.domain.contracts.group_contracts import IGroupService
 

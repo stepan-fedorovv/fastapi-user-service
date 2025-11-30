@@ -1,11 +1,10 @@
 import typing
 
-from sqlalchemy import exists, select, update
-from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import set_committed_value
 from app.domain.repositories.group_repository import GroupRepository
-from app.infrastructure.db.models import Group, Permission, group_permission_link
+from app.infrastructure.db.models import Group, Permission
 
 
 class SAGroupRepository(GroupRepository):
@@ -36,17 +35,14 @@ class SAGroupRepository(GroupRepository):
         set_committed_value(group, "permissions", [])
         return group
 
-    async def set_permissions(self, *, group: Group, permissions: list[Permission]) -> None:
+    async def set_permissions(
+        self, *, group: Group, permissions: list[Permission]
+    ) -> None:
         group.permissions = permissions
         await self.session.flush()
         return group
 
     async def patrial_update(self, group_id: int, data: dict[str, typing.Any]) -> Group:
-        stmt = (
-            update(Group)
-            .where(Group.id == group_id)
-            .values(**data)
-            .returning(Group)
-        )
+        stmt = update(Group).where(Group.id == group_id).values(**data).returning(Group)
         result = await self.session.execute(stmt)
         return result.scalars().one_or_none()

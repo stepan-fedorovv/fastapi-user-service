@@ -1,5 +1,4 @@
 from typing import Optional, List
-from datetime import datetime
 
 import sqlalchemy
 from sqlalchemy import String, ForeignKey, UniqueConstraint
@@ -22,6 +21,7 @@ group_permission_link = sqlalchemy.Table(
     ),
 )
 
+
 class Permission(Base, TimestampMixin):
     __tablename__ = "user_permission"
     __table_args__ = (
@@ -37,6 +37,7 @@ class Permission(Base, TimestampMixin):
         back_populates="permissions",
         lazy="selectin",
     )
+
 
 class Group(Base, TimestampMixin):
     __tablename__ = "user_groups"
@@ -55,6 +56,7 @@ class Group(Base, TimestampMixin):
         lazy="selectin",
         cascade="save-update",
     )
+
 
 class User(Base, TimestampMixin):
     __tablename__ = "users"

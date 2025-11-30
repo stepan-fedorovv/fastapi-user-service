@@ -1,6 +1,6 @@
-from datetime import timedelta
+import uuid
 
-from another_fastapi_jwt_auth import AuthJWT
+from app.shared.jwt.classes import AuthJWTWithPermission as AuthJWT
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, Depends
@@ -8,34 +8,59 @@ from fastapi_pagination import Params, Page
 from fastapi_pagination.async_paginator import apaginate
 from starlette import status
 
+from app.core import config
 from app.domain.contracts.user_contracts import IUserService
-from app.interface.schemas.user import UserBaseSchema, AuthResponseSchema, UserCreateSchema, LoginRequestSchema, \
-    UserUpdateSchema
+from app.interface.schemas.user import (
+    UserBaseSchema,
+    AuthResponseSchema,
+    UserCreateSchema,
+    LoginRequestSchema,
+    UserUpdateSchema,
+)
 
 router = APIRouter()
 
 
 @router.post(
-    path='/',
+    path="/",
     response_model=AuthResponseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary='Create a new user',
+    summary="Create a new user",
 )
 @inject
-async def create(
-        payload: UserCreateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IUserService] = None,
+async def register(
+    payload: UserCreateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
 ):
     user = await service.create(
         email=payload.email,
         password=payload.password,
         group_id=payload.group_id,
     )
-    access_token = authorize.create_access_token(subject=payload.email)
+    access_token = authorize.create_access_token(
+        subject=str(user.id),
+        user_claims={
+            "iss": config.JWT_ISS,
+            "aud": config.JWT_AUD,
+            "group": user.group.name,
+            "permissions": [
+                permission.code_name for permission in user.group.permissions
+            ],
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+        },
+        algorithm=config.JWT_ALGORITHM,
+    )
     refresh_token = authorize.create_refresh_token(
-        subject=payload.email,
-        expires_time=timedelta(hours=2)
+        subject=str(user.id),
+        user_claims={
+            "iss": config.JWT_ISS,
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+            "typ": "refresh",
+        },
+        algorithm=config.JWT_ALGORITHM,
     )
     return AuthResponseSchema(
         access_token=access_token,
@@ -44,22 +69,45 @@ async def create(
 
 
 @router.post(
-    path='/login/',
+    path="/login/",
     response_model=AuthResponseSchema,
     status_code=status.HTTP_200_OK,
 )
 @inject
 async def login(
-        payload: LoginRequestSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IUserService] = None,
+    payload: LoginRequestSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
 ):
-    await service.login(
+    user = await service.login(
         email=payload.email,
         password=payload.password,
     )
-    access_token = authorize.create_access_token(subject=payload.email)
-    refresh_token = authorize.create_refresh_token(subject=payload.email)
+    access_token = authorize.create_access_token(
+        subject=str(user.id),
+        user_claims={
+            "iss": config.JWT_ISS,
+            "aud": config.JWT_AUD,
+            "group": user.group.name,
+            "permissions": [
+                permission.code_name for permission in user.group.permissions
+            ],
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+        },
+        algorithm=config.JWT_ALGORITHM,
+    )
+    refresh_token = authorize.create_refresh_token(
+        subject=str(user.id),
+        user_claims={
+            "iss": config.JWT_ISS,
+            "aud": config.JWT_AUD,
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+            "typ": "refresh",
+        },
+        algorithm=config.JWT_ALGORITHM,
+    )
     return AuthResponseSchema(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -67,33 +115,31 @@ async def login(
 
 
 @router.get(
-    path='/me/',
+    path="/me/",
     response_model=UserBaseSchema,
     status_code=status.HTTP_200_OK,
-    summary='Get user info',
+    summary="Get user info",
 )
 @inject
 async def me(
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IUserService] = None,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
 ):
     authorize.jwt_required()
-    return await service.me(
-        email=authorize.get_jwt_subject()
-    )
+    return await service.me(user_id=int(authorize.get_jwt_subject()))
 
 
 @router.get(
-    path='/',
+    path="/",
     response_model=Page[UserBaseSchema],
     status_code=status.HTTP_200_OK,
-    summary='Get user list'
+    summary="Get user list",
 )
 @inject
 async def users_list(
-        service: FromDishka[IUserService] = None,
-        params: Params = Depends(),
-        authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
+    params: Params = Depends(),
+    authorize: AuthJWT = Depends(),
 ):
     authorize.jwt_required()
     users = await service.users_list()
@@ -101,17 +147,17 @@ async def users_list(
 
 
 @router.patch(
-    path='/{user_id}/',
+    path="/{user_id}/",
     response_model=UserBaseSchema,
     status_code=status.HTTP_200_OK,
-    summary='Update user',
+    summary="Update user",
 )
 @inject
 async def partial_update(
-        user_id: int,
-        payload: UserUpdateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IUserService] = None,
+    user_id: int,
+    payload: UserUpdateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
 ):
     authorize.jwt_required()
     return await service.partial_update(
@@ -121,16 +167,43 @@ async def partial_update(
 
 
 @router.post(
-    path='/refresh/',
+    path="/refresh/",
     response_model=AuthResponseSchema,
     status_code=status.HTTP_200_OK,
-    summary='Refresh token',
+    summary="Refresh token",
 )
-def refresh(authorize: AuthJWT = Depends()):
+@inject
+async def refresh(
+    service: FromDishka[IUserService] = None, authorize: AuthJWT = Depends()
+):
     authorize.jwt_refresh_token_required()
     subject = authorize.get_jwt_subject()
-    access_token = authorize.create_access_token(subject=subject)
-    refresh_token = authorize.create_refresh_token(subject=subject)
+    user = await service.find_by_id(
+        user_id=int(subject),
+    )
+    access_token = authorize.create_access_token(
+        subject=subject,
+        user_claims={
+            "iss": config.JWT_ISS,
+            "aud": config.JWT_AUD,
+            "group": user.group.name,
+            "permissions": [
+                permission.code_name for permission in user.group.permissions
+            ],
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+        },
+        algorithm=config.JWT_ALGORITHM,
+    )
+    refresh_token = authorize.create_refresh_token(
+        subject=str(user.id),
+        user_claims={
+            "iss": config.JWT_ISS,
+            "aud": config.JWT_AUD,
+            "jti": str(uuid.uuid4()),
+            "kid": config.JWT_KID,
+        },
+    )
     return AuthResponseSchema(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -138,18 +211,18 @@ def refresh(authorize: AuthJWT = Depends()):
 
 
 @router.get(
-    path='/{user_id}/',
+    path="/{user_id}/",
     response_model=UserBaseSchema,
     status_code=status.HTTP_200_OK,
-    summary='Get concrete user info',
+    summary="Get concrete user info",
 )
 @inject
 async def retrieve(
-        user_id: int,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IUserService] = None,
+    user_id: int,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IUserService] = None,
 ):
     authorize.jwt_required()
-    return await service.retrieve(
+    return await service.find_by_id(
         user_id=user_id,
     )

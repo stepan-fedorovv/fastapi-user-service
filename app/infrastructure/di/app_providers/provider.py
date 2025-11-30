@@ -1,4 +1,3 @@
-from typing import Callable
 
 from dishka import Provider, provide, Scope
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, AsyncEngine

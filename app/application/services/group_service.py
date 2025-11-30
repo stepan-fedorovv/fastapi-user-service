@@ -2,13 +2,18 @@ import typing
 
 from app.application.dto.group import GroupDto
 from app.application.factories.group_use_case_factory import GroupUseCaseFactory
-from app.application.factories.permission_use_case_factory import PermissionUseCaseFactory
-from app.domain.contracts.group_contracts import IGroupService
+from app.application.factories.permission_use_case_factory import (
+    PermissionUseCaseFactory,
+)
 from app.infrastructure.db.models import Group
 
 
-class GroupService(IGroupService):
-    def __init__(self, group_factory: GroupUseCaseFactory, permission_factory: PermissionUseCaseFactory) -> None:
+class GroupService:
+    def __init__(
+        self,
+        group_factory: GroupUseCaseFactory,
+        permission_factory: PermissionUseCaseFactory,
+    ) -> None:
         self.group_factory = group_factory
         self.permission_factory = permission_factory
 
@@ -27,7 +32,9 @@ class GroupService(IGroupService):
     async def partial_update(self, data: GroupDto) -> Group:
         group = await self.group_factory.partial_update_group.execute(
             group_id=data.id,
-            payload=data.model_dump(exclude_unset=True, exclude={'permissions_code_names'}),
+            payload=data.model_dump(
+                exclude_unset=True, exclude={"permissions_code_names"}
+            ),
         )
         if data.permissions_code_names is not None:
             permissions = await self.permission_factory.get_permissions.execute(

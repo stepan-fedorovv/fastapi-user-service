@@ -6,20 +6,22 @@ from app.shared.errors.enums import ErrorCode
 
 
 class GetUserByEmailUseCase:
-    def __init__(self, repository: UserRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: UserRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 
-    async def execute(self, email: str) -> User:
+    async def execute(self, user_id: int) -> User:
         async with self.tm.start():
-            user = await self.repository.find_by_email(email=email)
+            user = await self.repository.find_by_id(user_id=user_id)
             if user is None:
                 raise UserDoesNotExists(
-                    detail='User with email "{}" does not exist'.format(email),
+                    detail='User with id "{}" does not exist'.format(user_id),
                     errors={
-                        'field': 'email',
-                        'message': 'Not found',
-                        'code': ErrorCode.NOT_FOUND,
-                    }
+                        "field": "email",
+                        "message": "Not found",
+                        "code": ErrorCode.NOT_FOUND,
+                    },
                 )
         return user

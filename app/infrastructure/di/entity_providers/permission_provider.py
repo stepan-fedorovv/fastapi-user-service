@@ -1,7 +1,9 @@
 from dishka import Provider, provide, Scope
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.factories.permission_use_case_factory import PermissionUseCaseFactory
+from app.application.factories.permission_use_case_factory import (
+    PermissionUseCaseFactory,
+)
 from app.application.services.permission_service import PermissionService
 from app.domain.contracts.permission_contracts import IPermissionService
 

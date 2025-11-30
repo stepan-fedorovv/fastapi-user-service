@@ -1,4 +1,4 @@
-from functools import lru_cache, cached_property
+from functools import lru_cache
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,7 +10,7 @@ config = Config(".env")
 
 class APPSettings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=".env",
         extra="ignore",
     )
     APP_SECRET: str = config("APP_SECRET", cast=str, default="secret")
@@ -23,7 +23,9 @@ class APPSettings(BaseSettings):
     POSTGRES_SERVER: str = config("POSTGRES_SERVER", cast=str, default="127.0.0.1")
     POSTGRES_PORT: int = config("POSTGRES_PORT", cast=int, default=5432)
     POSTGRES_USER: str = config("POSTGRES_USER", cast=str, default="fastapi_template")
-    POSTGRES_PASSWORD: str = config("POSTGRES_PASSWORD", cast=str, default="fastapi_template")
+    POSTGRES_PASSWORD: str = config(
+        "POSTGRES_PASSWORD", cast=str, default="fastapi_template"
+    )
     POSTGRES_DB: str = config("POSTGRES_DB", cast=str, default="fastapi_template")
 
     API_ROUTE: str = config("API_ROUTE", cast=str, default="/api")
@@ -59,17 +61,27 @@ class APPSettings(BaseSettings):
     MIN_CONNECTIONS_COUNT: int = config("MIN_CONNECTIONS_COUNT", cast=int, default=1)
     MAX_CONNECTIONS_COUNT: int = config("MAX_CONNECTIONS_COUNT", cast=int, default=10)
 
+    JWT_ALGORITHM: str = config("ALGORITHM", cast=str, default="RS256")
+    AUTHJWT_PRIVATE_KEY_PATH: str = config(
+        "AUTHJWT_PRIVATE_KEY_PATH", cast=str, default="private"
+    )
+    AUTHJWT_PUBLIC_KEY_PATH: str = config(
+        "AUTHJWT_PUBLIC_KEY_PATH", cast=str, default="public"
+    )
 
-    def get_database_url(self, with_asyncpg = True) -> str:
-        driver = 'postgresql+asyncpg://'
+    JWT_KID: str = config("KID", default="")
+    JWT_ISS: str = config("ISS", default="")
+    JWT_AUD: str = config("AUD", default="")
+
+    def get_database_url(self, with_asyncpg=True) -> str:
+        driver = "postgresql+asyncpg://"
         if not with_asyncpg:
-            driver = 'postgresql://'
+            driver = "postgresql://"
         return (
             f"{driver}"
             f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
-
 
 
 @lru_cache()

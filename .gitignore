@@ -232,4 +232,4 @@ sql_warning.txt
 /kubectl.sha256
 /locale_temp/
 /media/
-
+/secrets/

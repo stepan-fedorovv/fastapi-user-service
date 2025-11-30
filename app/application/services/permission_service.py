@@ -1,12 +1,13 @@
 import typing
 
 from app.application.dto.permission import PermissionDto
-from app.application.factories.permission_use_case_factory import PermissionUseCaseFactory
-from app.domain.contracts.permission_contracts import IPermissionService
+from app.application.factories.permission_use_case_factory import (
+    PermissionUseCaseFactory,
+)
 from app.infrastructure.db.models import Permission
 
 
-class PermissionService(IPermissionService):
+class PermissionService:
     def __init__(self, factory: PermissionUseCaseFactory):
         self.factory = factory
 
@@ -25,9 +26,7 @@ class PermissionService(IPermissionService):
         )
 
     async def delete(self, permission_id: int) -> None:
-        await self.factory.get_permission.execute(
-            permission_id=permission_id
-        )
+        await self.factory.get_permission.execute(permission_id=permission_id)
         return await self.factory.delete_permission.execute(
             permission_id=permission_id,
         )
