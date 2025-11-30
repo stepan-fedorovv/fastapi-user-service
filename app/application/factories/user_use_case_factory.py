@@ -21,7 +21,7 @@ class UserUseCaseFactory:
         return CreateUserUseCase(
             repository=self._repository,
             transaction_manager=self._tm,
-            hash_password=hash_password
+            hash_password=hash_password,
         )
 
     @property
@@ -43,7 +43,7 @@ class UserUseCaseFactory:
         return LoginUserUseCase(
             repository=self._repository,
             transaction_manager=self._tm,
-            verify_password=verify_password
+            verify_password=verify_password,
         )
 
     @property

@@ -6,5 +6,5 @@ class BaseDto(BaseModel):
         arbitrary_types_allowed=True,
         use_enum_values=True,
         from_attributes=True,
-        extra='forbid'
+        extra="forbid",
     )

@@ -5,7 +5,9 @@ from app.shared.errors.enums import ErrorCode
 
 
 class GetGroupUseCase:
-    def __init__(self, repository: GroupRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: GroupRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 
@@ -17,9 +19,8 @@ class GetGroupUseCase:
                     detail="Group with id {} does not exist".format(group_id),
                     errors={
                         "field": "id",
-                        "message":"Not found",
+                        "message": "Not found",
                         "code": ErrorCode.GROUP_DOES_NOT_EXIST.value,
-
-                    }
+                    },
                 )
         return group

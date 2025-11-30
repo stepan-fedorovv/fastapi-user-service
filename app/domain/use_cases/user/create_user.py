@@ -10,10 +10,11 @@ from app.shared.types import PositionParams
 
 class CreateUserUseCase:
     def __init__(
-            self,
-            transaction_manager: TransactionManager,
-            repository: UserRepository,
-            hash_password: typing.Callable[PositionParams, str],):
+        self,
+        transaction_manager: TransactionManager,
+        repository: UserRepository,
+        hash_password: typing.Callable[PositionParams, str],
+    ):
         self.tm = transaction_manager
         self.repository = repository
         self.hash_password = hash_password
@@ -24,11 +25,13 @@ class CreateUserUseCase:
                 raise UserAlreadyExists(
                     detail='User with email "{}" already exists.'.format(email),
                     errors={
-                        'field': 'email',
-                        'message': 'Already exists',
-                        'code': ErrorCode.EMAIL_TAKEN.value
+                        "field": "email",
+                        "message": "Already exists",
+                        "code": ErrorCode.EMAIL_TAKEN.value,
                     },
                 )
             password_hash = self.hash_password(password=password)
-            user = await self.repository.create(email=email, password=password_hash, group_id=group_id)
+            user = await self.repository.create(
+                email=email, password=password_hash, group_id=group_id
+            )
         return user

@@ -6,7 +6,9 @@ from app.domain.repositories.group_repository import GroupRepository
 
 
 class GetGroupListUseCase:
-    def __init__(self, repository: GroupRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: GroupRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 

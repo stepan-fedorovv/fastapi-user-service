@@ -8,9 +8,9 @@ from app.shared.repository.base import BaseRepository
 RepoT = typing.TypeVar("RepoT", bound="BaseRepository")
 PayloadT = typing.TypeVar("PayloadT", bound="BaseDto")
 
+
 class Validator(typing.Protocol[RepoT, PayloadT]):
     async def __call__(self, *, repository: RepoT, payload: PayloadT) -> None: ...
-
 
 
 class ValidatorsMixin:
@@ -25,11 +25,19 @@ class ValidatorsMixin:
     ) -> None:
         if validated_field is None and payload is None:
             raise DomainError(
-                detail='Can not validated',
-                errors={'field': '', 'message': 'Can not validated', 'code': ErrorCode.CONFLICT.value}
+                detail="Can not validated",
+                errors={
+                    "field": "",
+                    "message": "Can not validated",
+                    "code": ErrorCode.CONFLICT.value,
+                },
             )
         for key, validate in self._create_validators.items():
             if key in states:
-                await validate['method'](
-                    **validate['params'](repository=repository, payload=payload, validated_field=validated_field)
+                await validate["method"](
+                    **validate["params"](
+                        repository=repository,
+                        payload=payload,
+                        validated_field=validated_field,
+                    )
                 )

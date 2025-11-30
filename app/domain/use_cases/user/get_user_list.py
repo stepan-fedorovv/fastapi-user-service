@@ -4,7 +4,9 @@ from app.domain.repositories.user_repository import UserRepository
 
 
 class GetUserListUseCase:
-    def __init__(self, repository: UserRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: UserRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 

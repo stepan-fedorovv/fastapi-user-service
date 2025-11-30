@@ -3,7 +3,9 @@ from app.domain.repositories.permission_repository import PermissionRepository
 
 
 class DeletePermissionUseCase:
-    def __init__(self, repository: PermissionRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: PermissionRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 

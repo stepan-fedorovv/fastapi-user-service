@@ -8,21 +8,23 @@ from starlette import status
 
 from app.application.dto.permission import PermissionDto
 from app.domain.contracts.permission_contracts import IPermissionService
-from app.interface.schemas.permission import PermissionBaseSchema, PermissionCreateSchema, PermissionUpdateSchema
+from app.interface.schemas.permission import (
+    PermissionBaseSchema,
+    PermissionCreateSchema,
+    PermissionUpdateSchema,
+)
 
 router = APIRouter()
 
 
 @router.get(
-    path='/',
-    status_code=status.HTTP_200_OK,
-    response_model=Page[PermissionBaseSchema]
+    path="/", status_code=status.HTTP_200_OK, response_model=Page[PermissionBaseSchema]
 )
 @inject
 async def permission_list(
-        authorize: AuthJWT = Depends(),
-        params: Params = Depends(),
-        service: FromDishka[IPermissionService] = None,
+    authorize: AuthJWT = Depends(),
+    params: Params = Depends(),
+    service: FromDishka[IPermissionService] = None,
 ):
     authorize.jwt_required()
     permissions = await service.permissions_list()
@@ -33,13 +35,13 @@ async def permission_list(
     path="/",
     status_code=status.HTTP_201_CREATED,
     response_model=PermissionBaseSchema,
-    summary='Create a new permission',
+    summary="Create a new permission",
 )
 @inject
 async def create(
-        payload: PermissionCreateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IPermissionService] = None,
+    payload: PermissionCreateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IPermissionService] = None,
 ):
     authorize.jwt_required()
     permission = await service.create(
@@ -53,13 +55,13 @@ async def create(
     path="/{permission_id}/",
     status_code=status.HTTP_200_OK,
     response_model=PermissionBaseSchema,
-    summary='Get a permission',
+    summary="Get a permission",
 )
 @inject
 async def retrieve(
-        permission_id: int,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IPermissionService] = None,
+    permission_id: int,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IPermissionService] = None,
 ):
     authorize.jwt_required()
     permission = await service.get_permission(
@@ -71,13 +73,13 @@ async def retrieve(
 @router.delete(
     path="/{permission_id}/",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary='Delete a permission',
+    summary="Delete a permission",
 )
 @inject
 async def delete(
-        permission_id: int,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IPermissionService] = None,
+    permission_id: int,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IPermissionService] = None,
 ):
     authorize.jwt_required()
     await service.delete(
@@ -89,21 +91,18 @@ async def delete(
 @router.patch(
     path="/{permission_id}/",
     status_code=status.HTTP_200_OK,
-    summary='Update a permission',
+    summary="Update a permission",
     response_model=PermissionBaseSchema,
 )
 @inject
 async def partial_update(
-        permission_id: int,
-        payload: PermissionUpdateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IPermissionService] = None,
+    permission_id: int,
+    payload: PermissionUpdateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IPermissionService] = None,
 ):
     authorize.jwt_required()
     permission = await service.partial_update(
-        data=PermissionDto(
-            id=permission_id,
-            **payload.model_dump(exclude_unset=True)
-        )
+        data=PermissionDto(id=permission_id, **payload.model_dump(exclude_unset=True))
     )
     return permission

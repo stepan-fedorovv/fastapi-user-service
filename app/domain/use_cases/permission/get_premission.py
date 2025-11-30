@@ -6,7 +6,9 @@ from app.shared.errors.enums import ErrorCode
 
 
 class GetPermissionUseCase:
-    def __init__(self, repository: PermissionRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: PermissionRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 
@@ -17,9 +19,9 @@ class GetPermissionUseCase:
                 raise PermissionNotFound(
                     detail="Permission not found",
                     errors={
-                        "field": 'permission_id',
+                        "field": "permission_id",
                         "message": "Not found",
-                        "code": ErrorCode.PERMISSION_NOT_FOUND
-                    }
+                        "code": ErrorCode.PERMISSION_NOT_FOUND,
+                    },
                 )
         return permission

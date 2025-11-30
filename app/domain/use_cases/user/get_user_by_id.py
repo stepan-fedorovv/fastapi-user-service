@@ -6,7 +6,9 @@ from app.shared.errors.enums import ErrorCode
 
 
 class GetUserByIdUseCase:
-    def __init__(self, repository: UserRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: UserRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 
@@ -17,9 +19,9 @@ class GetUserByIdUseCase:
                 raise UserDoesNotExists(
                     detail=f"The user with id {user_id} was not found.",
                     errors={
-                        'field': 'id',
-                        'message': 'The user with id {user_id} was not found',
-                        'code': ErrorCode.NOT_FOUND,
-                    }
+                        "field": "id",
+                        "message": "The user with id {user_id} was not found",
+                        "code": ErrorCode.NOT_FOUND,
+                    },
                 )
         return user

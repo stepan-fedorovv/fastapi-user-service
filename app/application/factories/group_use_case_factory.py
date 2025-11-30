@@ -17,15 +17,13 @@ class GroupUseCaseFactory:
     @property
     def create_group(self):
         return CreateGroupUseCase(
-            repository=self._repository,
-            transaction_manager=self._tm
+            repository=self._repository, transaction_manager=self._tm
         )
 
     @property
     def get_group(self):
         return GetGroupUseCase(
-            repository=self._repository,
-            transaction_manager=self._tm
+            repository=self._repository, transaction_manager=self._tm
         )
 
     @property
@@ -38,13 +36,11 @@ class GroupUseCaseFactory:
     @property
     def set_permissions(self):
         return SetGroupPermissionsUseCase(
-            repository=self._repository,
-            transaction_manager=self._tm
+            repository=self._repository, transaction_manager=self._tm
         )
 
     @property
     def partial_update_group(self):
         return PartialUpdateGroupUseCase(
-            repository=self._repository,
-            transaction_manager=self._tm
+            repository=self._repository, transaction_manager=self._tm
         )

@@ -1,4 +1,3 @@
-import pydantic
 from pydantic import field_validator
 
 from app.interface.schemas.permission import PermissionBaseSchema
@@ -21,16 +20,16 @@ class GroupUpdateSchema(BaseDto):
     name: str | None = None
     permissions_code_names: list[str] | None = None
 
-    @field_validator('name', mode='before')
+    @field_validator("name", mode="before")
     @classmethod
     def name_not_none(cls, v):
         if v is None:
             raise FieldRequired(
-                detail='Field cannot be empty',
+                detail="Field cannot be empty",
                 errors={
-                    'field': 'name',
-                    'message': 'Cannot be empty',
-                    'code': ErrorCode.FIELD_REQUIRED,
-                }
+                    "field": "name",
+                    "message": "Cannot be empty",
+                    "code": ErrorCode.FIELD_REQUIRED,
+                },
             )
         return v

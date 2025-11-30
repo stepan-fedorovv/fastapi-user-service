@@ -8,7 +8,11 @@ from starlette import status
 
 from app.application.dto.group import GroupDto
 from app.domain.contracts.group_contracts import IGroupService
-from app.interface.schemas.group import GroupBaseSchema, GroupCreateSchema, GroupUpdateSchema
+from app.interface.schemas.group import (
+    GroupBaseSchema,
+    GroupCreateSchema,
+    GroupUpdateSchema,
+)
 
 router = APIRouter()
 
@@ -17,13 +21,13 @@ router = APIRouter()
     path="/",
     response_model=Page[GroupBaseSchema],
     status_code=status.HTTP_200_OK,
-    summary='List of Groups'
+    summary="List of Groups",
 )
 @inject
 async def groups_list(
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IGroupService] = None,
-        params: Params = Depends(),
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IGroupService] = None,
+    params: Params = Depends(),
 ):
     authorize.jwt_required()
     groups = await service.groups_list()
@@ -37,9 +41,9 @@ async def groups_list(
 )
 @inject
 async def retrieve(
-        group_id: int,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IGroupService] = None,
+    group_id: int,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IGroupService] = None,
 ):
     authorize.jwt_required()
     group = await service.retrieve(
@@ -49,16 +53,16 @@ async def retrieve(
 
 
 @router.post(
-    path='/',
+    path="/",
     response_model=GroupBaseSchema,
     status_code=status.HTTP_201_CREATED,
-    summary='Create a new validators',
+    summary="Create a new validators",
 )
 @inject
 async def create(
-        payload: GroupCreateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IGroupService] = None,
+    payload: GroupCreateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IGroupService] = None,
 ):
     authorize.jwt_required()
     group = await service.create(
@@ -66,25 +70,22 @@ async def create(
     )
     return group
 
+
 @router.patch(
-    path='/{group_id}/',
+    path="/{group_id}/",
     response_model=GroupBaseSchema,
     status_code=status.HTTP_200_OK,
-    summary='Update groups',
+    summary="Update groups",
 )
 @inject
 async def partial_update(
-        group_id: int,
-        payload: GroupUpdateSchema,
-        authorize: AuthJWT = Depends(),
-        service: FromDishka[IGroupService] = None,
+    group_id: int,
+    payload: GroupUpdateSchema,
+    authorize: AuthJWT = Depends(),
+    service: FromDishka[IGroupService] = None,
 ):
     authorize.jwt_required()
     group = await service.partial_update(
-        data=GroupDto(
-            id=group_id,
-            **payload.model_dump(exclude_unset=True)
-        ),
+        data=GroupDto(id=group_id, **payload.model_dump(exclude_unset=True)),
     )
     return group
-

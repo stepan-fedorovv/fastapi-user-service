@@ -8,20 +8,24 @@ from app.shared.errors.enums import ErrorCode
 
 
 class PartialUpdateGroupUseCase:
-    def __init__(self, repository: GroupRepository, transaction_manager: TransactionManager) -> None:
+    def __init__(
+        self, repository: GroupRepository, transaction_manager: TransactionManager
+    ) -> None:
         self.repository = repository
         self.tm = transaction_manager
 
     async def execute(self, group_id: int, payload: dict[str, typing.Any]) -> Group:
         async with self.tm.start():
-            group = await self.repository.patrial_update(group_id=group_id, data=payload)
+            group = await self.repository.patrial_update(
+                group_id=group_id, data=payload
+            )
             if not group:
                 raise GroupDoesNotExists(
                     detail="Group with id {} does not exist.".format(group_id),
                     errors={
-                        'field': 'id',
-                        'message': 'Not found',
-                        'code': ErrorCode.GROUP_DOES_NOT_EXIST,
-                    }
+                        "field": "id",
+                        "message": "Not found",
+                        "code": ErrorCode.GROUP_DOES_NOT_EXIST,
+                    },
                 )
         return group

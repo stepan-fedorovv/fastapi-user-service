@@ -8,7 +8,9 @@ from app.shared.errors.enums import ErrorCode
 
 
 class PartialUpdateUserUseCase:
-    def __init__(self, repository: UserRepository, transaction_manager: TransactionManager):
+    def __init__(
+        self, repository: UserRepository, transaction_manager: TransactionManager
+    ):
         self.repository = repository
         self.tm = transaction_manager
 
@@ -19,9 +21,9 @@ class PartialUpdateUserUseCase:
                 raise UserDoesNotExists(
                     detail="User with {} does not exist".format(user_id),
                     errors={
-                        'field': 'id',
-                        'message': 'Not found',
-                        'code': ErrorCode.NOT_FOUND,
-                    }
+                        "field": "id",
+                        "message": "Not found",
+                        "code": ErrorCode.NOT_FOUND,
+                    },
                 )
         return user

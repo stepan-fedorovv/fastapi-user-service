@@ -1,4 +1,3 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.group import Group
 from app.domain.errors.group_error_classes import GroupAlreadyExists
@@ -8,7 +7,9 @@ from app.shared.errors.enums import ErrorCode
 
 
 class CreateGroupUseCase:
-    def __init__(self, transaction_manager: TransactionManager, repository: GroupRepository):
+    def __init__(
+        self, transaction_manager: TransactionManager, repository: GroupRepository
+    ):
         self.tm = transaction_manager
         self.repository = repository
 
@@ -20,8 +21,8 @@ class CreateGroupUseCase:
                     errors={
                         "field": "name",
                         "message": "Already exists",
-                        "code": ErrorCode.GROUP_EXISTS
-                    }
+                        "code": ErrorCode.GROUP_EXISTS,
+                    },
                 )
             group = await self.repository.create(name=name)
         return group

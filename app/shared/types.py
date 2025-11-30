@@ -1,3 +1,3 @@
 import typing
 
-PositionParams = typing.ParamSpec('PositionParams')
+PositionParams = typing.ParamSpec("PositionParams")
